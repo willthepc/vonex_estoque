@@ -2,7 +2,7 @@ import streamlit as st
 import pandas as pd
 import sqlite3
 
-bdEstoque = sqlite3.connect('estoque.db', check_same_thread=False)
+bdEstoque = sqlite3.connect('C:\\Users\\Suporte\\Desktop\\VsWilliam\\SistemaEstoque\\vonex_estoque\\estoque.db', check_same_thread=False)
 
 cursor = bdEstoque.cursor()
 
@@ -12,7 +12,7 @@ cursor.execute('''
         CREATE TABLE IF NOT EXISTS produtosTable (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         produto TEXT UNIQUE,
-        total INTEGER DEFAULT 0
+        total INTEGER CHECK(total >= 0)
     )  
     ''')
 
@@ -52,12 +52,8 @@ listaProdutos = ["Adaptador Display Port para HDMI", "Adaptador p/ Tomada 10A 2P
                                         "Telefone IP HUAWEI ET655", "Webcam HD 1080P Genérica", "Webcam KROSS ELEGANCE 1080P",
                                         "Webcam KROSS ELEGANCE 720P", "Webcam LOGITECH C270", "Webcam RISEMODE 1080P"]
 
-for produto in listaProdutos:
-        cursor.execute(f"INSERT OR IGNORE INTO produtosTable (produto, total) VALUES(?,?)", (produto, 0))
 
-bdEstoque.commit()
 
-# Função que cria o "popup" para Entrada
 @st.dialog("Registrar Entrada")
 def modal_entrada():
     st.text("ENTRADA")
@@ -69,13 +65,18 @@ def modal_entrada():
     protocolo = st.number_input("Número do Protocolo", min_value=1)
     observacao = st.text_input("Observação")
     if st.button("Confirmar Entrada"):
-        cursor.execute("INSERT INTO historicoTable (movimentacao, produto, categoria, quantidade, destino, protocolo, observacao) VALUES(?,?,?,?,?,?,?)", (movimentacao, produto, categoria, quantidade, destino, protocolo, observacao))
-        cursor.execute("UPDATE produtosTable SET total = total + ? WHERE produto = ?", (quantidade, produto))
-        bdEstoque.commit()
-        st.success(f"{quantidade} unidades de {produto} adicionadas!")
-        st.rerun()
+        try:
+            cursor.execute("SELECT id FROM produtosTable WHERE produto = ?", (produto,))
+            id = cursor.fetchone()[0]
+            cursor.execute("INSERT INTO historicoTable (id, movimentacao, produto, categoria, quantidade, destino, protocolo, observacao) VALUES (?, ?, ?, ?, ?, ?, ?, ?)", (id, movimentacao, produto, categoria, quantidade, destino, protocolo, observacao))
+            cursor.execute("UPDATE produtosTable SET total = total + ? WHERE produto = ?", (quantidade, produto))
+            bdEstoque.commit()
+            st.success(f"{quantidade} unidades de {produto} adicionadas!")
+            st.rerun()
+        except sqlite3.OperationalError:
+            st.error("Operational Error")
 
-# Função que cria o "popup" para Saída
+
 @st.dialog("Registrar Saída")
 def modal_saida():
     st.text("SAÍDA")
@@ -87,11 +88,19 @@ def modal_saida():
     protocolo = st.number_input("Número do Protocolo", min_value=1)
     observacao = st.text_input("Observação")
     if st.button("Confirmar Saída"):
-        cursor.execute("INSERT INTO historicoTable (movimentacao, produto, categoria, quantidade, destino, protocolo, observacao) VALUES (?, ?, ?, ?, ?, ?, ?)", (movimentacao, produto, categoria, quantidade, destino, protocolo, observacao))
-        cursor.execute("UPDATE produtosTable SET total = total - ? WHERE produto = ? ", (quantidade, produto))
-        bdEstoque.commit()
-        st.error(f"{quantidade} unidades de {produto} removidas!")
-        st.rerun()
+        try:
+            cursor.execute("UPDATE produtosTable SET total = total - ? WHERE produto = ?", (quantidade, produto))
+            cursor.execute("SELECT id FROM produtosTable WHERE produto = ?", (produto,))
+            id = cursor.fetchone()[0]
+            cursor.execute("INSERT INTO historicoTable (id, movimentacao, produto, categoria, quantidade, destino, protocolo, observacao) VALUES (?, ?, ?, ?, ?, ?, ?, ?)", (id, movimentacao, produto, categoria, quantidade, destino, protocolo, observacao))
+            bdEstoque.commit()
+            st.success(f"{quantidade} unidades de {produto} removidas!")
+            st.rerun()
+        except sqlite3.IntegrityError:
+            st.error("Quantidade indísponivel.")
+            
+            
+        
 
 # --- INTERFACE PRINCIPAL ---
 st.title("📦 Sistema de Estoque")
