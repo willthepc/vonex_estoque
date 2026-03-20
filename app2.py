@@ -2,7 +2,7 @@ import streamlit as st
 import pandas as pd
 import sqlite3
 
-bdEstoque = sqlite3.connect('C:\\Users\\Suporte\\Desktop\\VsWilliam\\SistemaEstoque\\vonex_estoque\\estoque.db', check_same_thread=False)
+bdEstoque = sqlite3.connect('estoque.db', check_same_thread=False)
 
 cursor = bdEstoque.cursor()
 
