@@ -2,6 +2,7 @@ import streamlit as st
 import pandas as pd
 import sqlite3
 
+
 bdEstoque = sqlite3.connect('estoque.db', check_same_thread=False)
 
 cursor = bdEstoque.cursor()
@@ -51,6 +52,7 @@ listaProdutos = ["Adaptador Display Port para HDMI", "Adaptador p/ Tomada 10A 2P
                                         "Teclado USB LOGITECH K120", "Tela de Privacidade 15.6", "Tela de Privacidade 19.5",
                                         "Telefone IP HUAWEI ET655", "Webcam HD 1080P Genérica", "Webcam KROSS ELEGANCE 1080P",
                                         "Webcam KROSS ELEGANCE 720P", "Webcam LOGITECH C270", "Webcam RISEMODE 1080P"]
+
 
 
 
