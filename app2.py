@@ -110,7 +110,7 @@ def modal_saida():
             
         
 
-# --- INTERFACE PRINCIPAL ---
+#INTERFACE PRINCIPAL
 st.title("📦 Sistema de Estoque")
 
 col1, col2, _ = st.columns([1, 1, 4])
@@ -125,9 +125,6 @@ with col2:
 
 st.divider()
 
-
-
-# Simulando a tabela vinda do banco
 
 df = pd.read_sql_query("SELECT * FROM produtosTable", bdEstoque)
 st.dataframe(df, use_container_width=True, hide_index=True)
