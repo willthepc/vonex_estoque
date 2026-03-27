@@ -53,12 +53,6 @@ listaProdutos = ["Adaptador Display Port para HDMI", "Adaptador p/ Tomada 10A 2P
                                         "Telefone IP HUAWEI ET655", "Webcam HD 1080P Genérica", "Webcam KROSS ELEGANCE 1080P",
                                         "Webcam KROSS ELEGANCE 720P", "Webcam LOGITECH C270", "Webcam RISEMODE 1080P"]
 
-for produto in listaProdutos:
-
-        cursor.execute(f"INSERT OR IGNORE INTO produtosTable (produto, total) VALUES(?,?)", (produto, 0))
-
-
-
 bdEstoque.commit()
 
 
